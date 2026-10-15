@@ -213,7 +213,7 @@ try {
         _miao_path: "/",
         _imgUrl: (url: string) => url,
         sys: { scale: "", copyright: "" },
-        copyright: "喵喵插件 · 原版模板渲染 · 账号静态快照",
+        copyright: "",
         game: card.game,
         elem: card.element,
         element: card.element,
@@ -250,7 +250,7 @@ try {
         // 离线快照未导出完整战斗属性，隐藏空面板，不用猜测值填充原版表格。
         html = html.replace(
           "</head>",
-          "<style>body{transform:none;margin:0}.char-attr{display:none}</style></head>",
+          "<style>body{transform:none;margin:0}.char-attr,.copyright{display:none}</style></head>",
         );
         await writeFile(join(output, directory, card.key + ".html"), html);
       }
