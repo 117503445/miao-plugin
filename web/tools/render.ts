@@ -1,18 +1,12 @@
 /** 构建阶段使用art-template执行未修改的喵喵模板，产出独立静态HTML。 */
 import template from "art-template";
 import { createServer } from "vite";
-import {
-  readFile,
-  mkdir,
-  writeFile,
-  cp,
-  access,
-  readdir,
-} from "node:fs/promises";
+import { readFile, mkdir, writeFile, access, readdir } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import type { Snapshot, Card } from "../src/types";
+import { copyVersionedAssets } from "./static-assets";
 
 const web = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const root = resolve(web, ".."),
@@ -152,16 +146,7 @@ await writeFile(
   join(output, "native-media/empty.svg"),
   '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>',
 );
-await cp(join(resources, "common"), join(output, "common"), {
-  recursive: true,
-});
-await cp(join(resources, "meta-sr/public"), join(output, "meta-sr/public"), { recursive: true });
-await mkdir(join(output, "character"), { recursive: true });
-await cp(join(resources, "character/imgs"), join(output, "character/imgs"), {
-  recursive: true,
-});
-for (const file of ["profile-detail.css", "artis-mark.css"])
-  await cp(join(resources, "character", file), join(output, "character", file));
+const resourcePrefix = await copyVersionedAssets(resources, output);
 const server = await createServer({
   root: web,
   configFile: false,
@@ -188,6 +173,7 @@ try {
   );
   const manifest: Record<string, any> = {
     renderer: "art-template",
+    resourcePrefix,
     templates: {},
     characters: [],
   };
@@ -251,6 +237,11 @@ try {
         html = html.replace(
           "</head>",
           "<style>body{transform:none;margin:0}.char-attr,.copyright{display:none}</style></head>",
+        );
+        // 仅替换资源URL，原版模板和CSS内容保持不变；资源变化时URL自动更新。
+        html = html.replace(
+          /(["'(])\/(common|character|meta-sr\/public)\//g,
+          `$1${resourcePrefix}/$2/`,
         );
         await writeFile(join(output, directory, card.key + ".html"), html);
       }

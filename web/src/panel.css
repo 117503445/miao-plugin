@@ -1,7 +1,7 @@
 /* 原版HTML与CSS隔离在iframe中，网页只管理响应式缩放与导航。 */
 @font-face {
   font-family: MiaoTitle;
-  src: url("/common/font/NZBZ.woff") format("woff");
+  src: url("../../resources/common/font/NZBZ.woff") format("woff");
   font-display: swap;
 }
 :root {
