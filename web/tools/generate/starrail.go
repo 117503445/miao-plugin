@@ -25,7 +25,11 @@ type srSource struct {
 		SetID                          string `json:"set_id"`
 		Name, Slot, Mainstat, Location string
 		Rarity, Level                  int
-		Substats                       []stat `json:"substats"`
+		Substats                       []struct {
+			Key   string  `json:"key"`
+			Value float64 `json:"value"`
+			Count int     `json:"count"`
+		} `json:"substats"`
 	} `json:"relics"`
 }
 
@@ -94,7 +98,7 @@ func (g *generator) starrail(path string) account {
 				if key == "" {
 					panic("未知星铁副词条: " + s.Key)
 				}
-				ar.Attrs = append(ar.Attrs, stat{key, s.Value})
+				ar.Attrs = append(ar.Attrs, stat{Key: key, Value: s.Value, RollCount: s.Count})
 			}
 			v.Artifacts = append(v.Artifacts, ar)
 		}

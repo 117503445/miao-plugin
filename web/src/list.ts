@@ -1,5 +1,6 @@
 import { elements, escapeHTML as esc } from "./panel";
 import type { ScoredCard, Stat } from "./types";
+import { enhancementText } from "./enhancements";
 
 const labels: Record<string, string> = {
   hpPlus: "生命值", hp: "生命值", atkPlus: "攻击力", atk: "攻击力",
@@ -23,7 +24,7 @@ function statText(stat: Stat): string {
 }
 /** 生成card的纯文本配装详情，保留逐件得分及原版规则权重。 */
 function equipmentHTML(card: ScoredCard): string {
-  return `<div class="list-equipment">${card.artifacts.map(piece => `<section class="list-piece"><div class="list-piece-heading"><strong>${esc(piece.name)} +${piece.level}</strong><b>${piece.score.toFixed(1)} · ${esc(piece.grade)}</b></div><p>${esc(piece.set)} · ${esc(statText(piece.main))}</p><ul>${piece.attrs.map(stat => `<li class="${card.weights[stat.key] > 0 ? "effective" : "ineffective"}">${esc(statText(stat))}${card.weights[stat.key] > 0 ? "" : "（不计分）"}</li>`).join("")}</ul></section>`).join("")}</div><p class="list-rule">评分规则：${esc(card.rule)}。权重：${Object.entries(card.weights).filter(([key]) => !key.endsWith("Plus")).map(([key, weight]) => `${esc(labels[key] || key)} ${weight}`).join(" / ")}。花、羽的固定主词条不计分；评分用于衡量有效词条。</p>`;
+  return `<div class="list-equipment">${card.artifacts.map(piece => `<section class="list-piece"><div class="list-piece-heading"><strong>${esc(piece.name)} +${piece.level}</strong><b>${piece.score.toFixed(1)} · ${esc(piece.grade)}</b></div><p>${esc(piece.set)} · ${esc(statText(piece.main))}</p><ul>${piece.attrs.map(stat => `<li class="${card.weights[stat.key] > 0 ? "effective" : "ineffective"}">${esc(statText(stat))}<small class="stat-enhancements">${esc(enhancementText(stat))}</small>${card.weights[stat.key] > 0 ? "" : "（不计分）"}</li>`).join("")}</ul></section>`).join("")}</div><p class="list-rule">评分规则：${esc(card.rule)}。权重：${Object.entries(card.weights).filter(([key]) => !key.endsWith("Plus")).map(([key, weight]) => `${esc(labels[key] || key)} ${weight}`).join(" / ")}。强化次数不含词条首次生成；首次生成后每提升一次记1次。花、羽的固定主词条不计分；评分用于衡量有效词条。</p>`;
 }
 /** 用cards生成可展开的简洁列表，详情按钮继续打开原版模板。 */
 export function listHTML(cards: ScoredCard[]): string {

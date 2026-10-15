@@ -15,6 +15,8 @@ import (
 type stat struct {
 	Key   string  `json:"key"`
 	Value float64 `json:"value"`
+	// RollCount为含首次生成的赋值次数；零表示导出未记录。
+	RollCount int `json:"rollCount,omitempty"`
 }
 
 // artifact 保存idx部位、name名称、set套装、level等级、star星级、main主词条、attrs副词条和image图片。

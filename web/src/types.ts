@@ -2,6 +2,8 @@
 export interface Stat {
   key: string;
   value: number;
+  /** 含词条首次生成的赋值次数，未采集时缺省。 */
+  rollCount?: number;
 }
 /** 圣遗物或遗器的原始装备数据。 */
 export interface Artifact {

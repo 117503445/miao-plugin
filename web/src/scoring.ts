@@ -177,7 +177,7 @@ export function scoreCard(card: Card, native = false): ScoredCard {
                 card.game,
               ),
               attrs: ArtisMark.formatArtiAttrs(
-                piece.attrs,
+                piece.attrs.map(stat => ({ ...stat, upNum: stat.rollCount || 0 })),
                 config.attrs,
                 card.game,
               ),

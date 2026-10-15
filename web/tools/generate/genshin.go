@@ -26,7 +26,11 @@ type gsSource struct {
 	Artifacts []struct {
 		SetKey, SlotKey, MainStatKey, Location string
 		Level, Rarity                          int
-		Substats                               []stat `json:"substats"`
+		Substats                               []struct {
+			Key   string    `json:"key"`
+			Value float64   `json:"value"`
+			Rolls []float64 `json:"rolls"`
+		} `json:"substats"`
 	} `json:"artifacts"`
 }
 
@@ -99,7 +103,7 @@ func (g *generator) genshin(path string) account {
 			if wa.BonusKey == "atkPct" || wa.BonusKey == "hpPct" || wa.BonusKey == "defPct" {
 				key = wa.BonusKey
 			}
-			v.Weapon.Bonus = stat{key, wa.BonusData[strconv.Itoa(w.Level)]}
+			v.Weapon.Bonus = stat{Key: key, Value: wa.BonusData[strconv.Itoa(w.Level)]}
 		}
 		if v.Weapon == nil {
 			v.Notes = append(v.Notes, "武器未包含在本次导出中")
@@ -130,7 +134,7 @@ func (g *generator) genshin(path string) account {
 				if key == "" {
 					panic("未知原神副词条: " + s.Key)
 				}
-				ar.Attrs = append(ar.Attrs, stat{key, s.Value})
+				ar.Attrs = append(ar.Attrs, stat{Key: key, Value: s.Value, RollCount: len(s.Rolls)})
 			}
 			v.Artifacts = append(v.Artifacts, ar)
 		}
