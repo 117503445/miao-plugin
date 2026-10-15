@@ -133,7 +133,7 @@ func (g *generator) media(path string) string {
 
 // portrait 获取m角色的头像和背景；两游戏各自使用上游原有素材。
 func (g *generator) portrait(m meta) (string, string) {
-	return g.media(filepath.Join(m.dir, "imgs/face.webp")), g.media(filepath.Join(m.dir, "imgs/card.webp"))
+	return g.media(filepath.Join(m.dir, "imgs/face.webp")), g.media(filepath.Join(m.dir, "imgs/splash.webp"))
 }
 
 // weaponMeta 通过game及name或id查找武器元数据，不猜测缺失的武器属性。
