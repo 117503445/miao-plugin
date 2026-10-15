@@ -238,7 +238,7 @@ try {
         // 离线快照未导出完整战斗属性，隐藏空面板，不用猜测值填充原版表格。
         html = html.replace(
           "</head>",
-          "<style>body{transform:none;margin:0}.char-attr,.copyright{display:none}.roll-count{display:block;font-size:10px;line-height:12px;padding-bottom:4px;opacity:.8}</style></head>",
+          "<style>body{transform:none;margin:0}.char-attr,.copyright{display:none}</style></head>",
         );
         // 仅替换资源URL，原版模板和CSS内容保持不变；资源变化时URL自动更新。
         html = html.replace(

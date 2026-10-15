@@ -45,3 +45,5 @@
 转换器保留原神GOOD `rolls.length` 和星铁快照 `count` 为`rollCount`（包含词条首次生成）。列表详情与原版角色/评分页均显示`强化N次`，N=rollCount-1，首次生成不计入后续强化；没有记录时明确显示未知，不按数值猜测。原版面板同时恢复upNum图形标记，上游模板、CSS及评分算法不修改。
 
 `node --import ./node_modules/tsx/dist/loader.mjs --test src/route.test.ts src/enhancements.test.ts`核对hash路由与强化次数口径。
+
+强化次数显示位置：每条副词条前方的小方框直接显示数字，鼠标悬停说明“强化N次”。列表和原版角色/评分页一致，数值后不再追加次数文字；原版方框继续使用原有eff样式。

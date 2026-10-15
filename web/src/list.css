@@ -32,7 +32,7 @@ body.list-mode { background:#171c25; }
 .list-piece p { font-size:11px; color:var(--muted); line-height:1.7; }
 .list-piece ul { padding:0; margin:0; list-style:none; font-size:12px; line-height:1.9; }
 .list-piece .ineffective { color:var(--muted); }
-.list-piece .stat-enhancements { display:inline; margin-left:8px; color:var(--muted); font-size:11px; white-space:nowrap; }
+.list-piece .stat-enhancements { display:inline-flex; align-items:center; justify-content:center; width:23px; height:18px; margin:0 8px 0 0; border-radius:5px; background:#0005; color:inherit; font-size:11px; vertical-align:middle; }
 .list-actions { display:flex; gap:12px; }
 .list-actions button { border:1px solid var(--line); background:transparent; border-radius:4px; padding:8px 12px; color:inherit; font-size:12px; }
 @media(max-width:1100px) {
