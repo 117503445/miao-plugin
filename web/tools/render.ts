@@ -155,6 +155,7 @@ await writeFile(
 await cp(join(resources, "common"), join(output, "common"), {
   recursive: true,
 });
+await cp(join(resources, "meta-sr/public"), join(output, "meta-sr/public"), { recursive: true });
 await mkdir(join(output, "character"), { recursive: true });
 await cp(join(resources, "character/imgs"), join(output, "character/imgs"), {
   recursive: true,
