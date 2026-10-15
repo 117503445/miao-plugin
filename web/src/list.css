@@ -53,3 +53,10 @@ body.list-mode { background:#171c25; }
  .list-character summary small { font-size:11px; }
  .list-character .list-piece-scores { justify-content:space-between; gap:6px; }
 }
+.battle-attributes { margin:12px 0 18px; padding:14px; border:1px solid var(--line); border-radius:4px; }
+.battle-attributes h3 { margin:0 0 12px; font-size:14px; }
+.battle-attributes dl { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px 22px; margin:0; }
+.battle-attributes dl>div { display:flex; justify-content:space-between; gap:8px; font-size:12px; }
+.battle-attributes dt { color:var(--muted); }
+.battle-attributes dd { margin:0; font-variant-numeric:tabular-nums; }
+.battle-attributes p { color:var(--muted); font-size:11px; line-height:1.8; margin:12px 0 0; }

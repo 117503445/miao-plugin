@@ -10,16 +10,21 @@ import {
   fitNativeFrames,
 } from "./panel";
 import { scoreCard } from "./scoring";
-import type { Snapshot } from "./types";
+import type { Snapshot, BattleAttributes } from "./types";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = '<main class="loading">正在整理角色档案…</main>';
 try {
-  const response = await fetch("/accounts.json", { cache: "no-cache" });
-  if (!response.ok) throw new Error("账号数据加载失败");
+  const [response,attrResponse] = await Promise.all([fetch("/accounts.json", { cache: "no-cache" }),fetch("/attributes.json",{cache:"no-cache"})]);
+  if (!response.ok || !attrResponse.ok) throw new Error("账号或常驻属性数据加载失败");
   const snapshot: Snapshot = await response.json();
+  const attributeData:{characters:Record<string,BattleAttributes>} = await attrResponse.json();
   const cards = snapshot.accounts.flatMap((account) =>
-    account.characters.map((card) => scoreCard(card)),
+    account.characters.map((card) => {
+      const battle=attributeData.characters[card.key];
+      if (!battle) throw new Error(`${card.name}常驻属性数据缺失`);
+      return {...scoreCard(card),battle};
+    }),
   );
   let { game, query, element, sort, incomplete: onlyIncomplete, view, character, panel } = parseRoute(location.hash, localStorage.getItem("mihoyo-view") === "cards" ? "cards" : "list");
   app.innerHTML = `<header><a class="brand" href="/">✦ 米游档案 <span>PERSONAL ARCHIVE</span></a><a class="source" href="https://github.com/117503445/miao-plugin/tree/feat/static-account-cards" target="_blank" rel="noreferrer">开源 ↗</a></header><main><section class="intro"><div class="eyebrow">MIAO · CHARACTER PROFILES</div><h1>我的<span>角色面板</span></h1><p>每一位同行者，都值得一张完整的配装档案。</p></section><nav class="tabs" aria-label="选择游戏"><button data-game="gs" class="active">原神 <small>GENSHIN IMPACT</small></button><button data-game="sr">崩坏：星穹铁道 <small>HONKAI: STAR RAIL</small></button></nav><section id="account" class="account"></section><section class="toolbar" aria-label="筛选角色"><label class="search">搜 <input id="search" type="search" placeholder="搜索角色、武器或套装" aria-label="搜索角色、武器或套装"></label><select id="sort" aria-label="角色排序"><option value="level">等级优先</option><option value="score">评分从高到低</option><option value="weak">评分从低到高</option><option value="name">按角色名称</option></select><label class="toggle"><input id="incomplete" type="checkbox">仅看配装缺失</label><nav class="view-switch" aria-label="展示模式"><button data-view="list">列表</button><button data-view="cards">原版卡片</button></nav></section><div id="elements" class="elements"></div><div id="count" class="count" aria-live="polite"></div><section id="cards" class="grid"></section><footer>采用<a href="https://github.com/yoimiya-kokomi/miao-plugin" target="_blank" rel="noreferrer">喵喵插件</a>原版角色权重与评分算法 · MIT<br>评分衡量有效词条，培养时还需结合队伍、充能和循环。这里展示导出时的配装快照。</footer></main><dialog id="detail"><button class="close" aria-label="关闭详情">×</button><div id="detail-body"></div></dialog>`;

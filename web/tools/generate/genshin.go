@@ -68,7 +68,7 @@ func (g *generator) genshin(path string) account {
 		if c.Element != "" {
 			element = strings.ToLower(c.Element)
 		}
-		v := card{Key: "gs-" + c.Key, ID: m.ID, Name: name, RuleName: m.Name, Game: "gs", Element: element, Path: m.Path, Level: c.Level, Cons: c.Cons, Star: m.Star, Image: image, Banner: banner, BaseAttr: m.Base, Attr: map[string]float64{"cpct": 5, "cdmg": 50, "mastery": 0, "recharge": 100}, Artifacts: []artifact{}, Notes: []string{}}
+		v := card{Key: "gs-" + c.Key, ID: m.ID, Name: name, RuleName: m.Name, Game: "gs", Element: element, Path: m.Path, Level: c.Level, Ascension: c.Ascension, Cons: c.Cons, Star: m.Star, Image: image, Banner: banner, BaseAttr: m.Base, Attr: map[string]float64{"cpct": 5, "cdmg": 50, "mastery": 0, "recharge": 100}, Artifacts: []artifact{}, Notes: []string{}}
 		// 使用喵喵的角色等级表补入突破属性，仅供评分规则判断，卡片不伪造战斗增益。
 		var attr struct {
 			Keys    []string             `json:"keys"`
@@ -93,7 +93,7 @@ func (g *generator) genshin(path string) account {
 			}
 			var star int
 			decode(data, "star", &star)
-			v.Weapon = &weapon{Name: weaponName, Level: w.Level, Affix: w.Refinement, Star: star, Image: g.media(filepath.Join(dir, "icon.webp"))}
+			v.Weapon = &weapon{Name: weaponName, Level: w.Level, Ascension: w.Ascension, Affix: w.Refinement, Star: star, Image: g.media(filepath.Join(dir, "icon.webp"))}
 			var wa struct {
 				BonusKey  string             `json:"bonusKey"`
 				BonusData map[string]float64 `json:"bonusData"`

@@ -20,6 +20,8 @@ export interface Artifact {
 export interface Weapon {
   name: string;
   level: number;
+  /** 实际导出的突破等级。 */
+  ascension: number;
   affix: number;
   star: number;
   image: string;
@@ -35,6 +37,9 @@ export interface Card {
   element: string;
   path: string;
   level: number;
+  /** 角色实际突破等级及星铁已点亮行迹。 */
+  ascension: number;
+  traces?: Record<string, boolean>;
   cons: number;
   star: number;
   image: string;
@@ -63,6 +68,7 @@ export interface Snapshot {
 }
 /** 从上游算法得到的评分结果。 */
 export interface ScoredCard extends Card {
+  battle?: BattleAttributes;
   score: number;
   grade: string;
   complete: boolean;
@@ -70,4 +76,11 @@ export interface ScoredCard extends Card {
   weights: Record<string, number>;
   artifacts: (Artifact & { score: number; grade: string })[];
   native?: Record<string, any>;
+}
+
+/** 使用喵喵原版静态规则重建的离线常驻属性，不包含战斗触发状态。 */
+export interface BattleAttributes {
+  values: Record<string, number>;
+  base: Record<string, number>;
+  notes: string[];
 }

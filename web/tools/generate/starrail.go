@@ -16,6 +16,7 @@ type srSource struct {
 		Level, Ascension, Eidolon int
 		Version                   int                                     `json:"ability_version"`
 		Skills                    struct{ Basic, Skill, Ult, Talent int } `json:"skills"`
+		Traces                    map[string]bool                         `json:"traces"`
 	} `json:"characters"`
 	Cones []struct {
 		ID, Name, Location                string
@@ -47,7 +48,7 @@ func (g *generator) starrail(path string) account {
 		must(err)
 		m := g.pick("sr", id, c.Version)
 		image, banner := g.portrait(m)
-		v := card{Key: "sr-" + c.ID, ID: id, Name: m.Name, RuleName: m.Name, Game: "sr", Element: elems[m.Elem], Path: m.Path, Level: c.Level, Cons: c.Eidolon, Star: m.Star, Image: image, Banner: banner, BaseAttr: m.Base, Attr: map[string]float64{}, Artifacts: []artifact{}, Notes: []string{}}
+		v := card{Key: "sr-" + c.ID, ID: id, Name: m.Name, RuleName: m.Name, Game: "sr", Element: elems[m.Elem], Path: m.Path, Level: c.Level, Ascension: c.Ascension, Traces: c.Traces, Cons: c.Eidolon, Star: m.Star, Image: image, Banner: banner, BaseAttr: m.Base, Attr: map[string]float64{}, Artifacts: []artifact{}, Notes: []string{}}
 		v.Talents = []talent{{"普攻", c.Skills.Basic}, {"战技", c.Skills.Skill}, {"终结技", c.Skills.Ult}, {"天赋", c.Skills.Talent}}
 		for _, w := range src.Cones {
 			if w.Location != c.ID {
@@ -63,7 +64,7 @@ func (g *generator) starrail(path string) account {
 			var star int
 			decode(data, "name", &name)
 			decode(data, "star", &star)
-			v.Weapon = &weapon{Name: name, Level: w.Level, Affix: w.Superimposition, Star: star, Image: g.media(filepath.Join(dir, "icon.webp"))}
+			v.Weapon = &weapon{Name: name, Level: w.Level, Ascension: w.Ascension, Affix: w.Superimposition, Star: star, Image: g.media(filepath.Join(dir, "icon.webp"))}
 		}
 		if v.Weapon == nil {
 			v.Notes = append(v.Notes, "本次快照没有已装备光锥")

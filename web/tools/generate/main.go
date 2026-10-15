@@ -33,12 +33,13 @@ type artifact struct {
 
 // weapon 保存当前武器name名称、level等级、affix精炼、star星级、image图片及bonus静态副属性。
 type weapon struct {
-	Name  string `json:"name"`
-	Level int    `json:"level"`
-	Affix int    `json:"affix"`
-	Star  int    `json:"star"`
-	Image string `json:"image"`
-	Bonus stat   `json:"bonus"`
+	Name      string `json:"name"`
+	Level     int    `json:"level"`
+	Affix     int    `json:"affix"`
+	Ascension int    `json:"ascension"`
+	Star      int    `json:"star"`
+	Image     string `json:"image"`
+	Bonus     stat   `json:"bonus"`
 }
 
 // talent 是name技能与level基础等级。
@@ -57,6 +58,8 @@ type card struct {
 	Element   string             `json:"element"`
 	Path      string             `json:"path"`
 	Level     int                `json:"level"`
+	Ascension int                `json:"ascension"`
+	Traces    map[string]bool    `json:"traces,omitempty"`
 	Cons      int                `json:"cons"`
 	Star      int                `json:"star"`
 	Image     string             `json:"image"`

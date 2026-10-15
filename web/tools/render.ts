@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import type { Snapshot, Card } from "../src/types";
 import { copyVersionedAssets } from "./static-assets";
 import { appendRollLabels } from "./roll-labels";
+import { attributeMetadata } from "./attribute-meta";
 
 const web = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const root = resolve(web, ".."),
@@ -133,7 +134,7 @@ async function characterData(card: Card): Promise<Record<string, any>> {
     talent,
     treeData: [],
     imgs,
-    dataSource: "离线配装；未采集战斗属性",
+    dataSource: "离线常驻属性；不含队伍及触发加成",
     updateTime: card.game === "gs" ? "2026-10-15" : "2026-10-07",
   };
 }
@@ -169,6 +170,10 @@ const server = await createServer({
 });
 try {
   const { scoreCard } = await server.ssrLoadModule("/src/scoring.ts");
+  const { calculateAttributes } = await server.ssrLoadModule("/src/attributes.ts");
+  const { nativeAttributes } = await server.ssrLoadModule("/src/attribute-view.ts");
+  const metadata = await attributeMetadata(resources,server);
+  const attributes:Record<string,any> = {};
   const snapshot: Snapshot = JSON.parse(
     await readFile(join(output, "accounts.json"), "utf8"),
   );
@@ -194,6 +199,8 @@ try {
       const scored = scoreCard(card, true),
         native = scored.native,
         data = await characterData(card);
+      const battle = calculateAttributes(scored,await metadata.get(card));
+      attributes[card.key] = battle;
       const context = {
         elemLayout: join(resources, "common/layout/elem.html"),
         _res_path: "",
@@ -210,7 +217,7 @@ try {
         imgs: data.imgs,
         splash: data.imgs.splash,
         uid: account.uid,
-        attr: {},
+        attr: nativeAttributes(battle,card.game),
         artisDetail: native.detail,
         artisKeyTitle: native.titles,
         charCfg: native.config,
@@ -235,11 +242,12 @@ try {
         );
         // 上游为截图固定600/660像素；缩放由外层网页完成，仅取消机器人截图的body放大。
         html = appendRollLabels(html, scored.artifacts);
-        // 离线快照未导出完整战斗属性，隐藏空面板，不用猜测值填充原版表格。
+        // 属性来自未修改的原版Attr计算器，保留原版属性表，仅隐藏用户要求去掉的底部文字。
         html = html.replace(
           "</head>",
-          "<style>body{transform:none;margin:0}.char-attr,.copyright{display:none}</style></head>",
+          "<style>body{transform:none;margin:0}.copyright{display:none}</style></head>",
         );
+        html = html.replace(/(<span class="plus">)\+-/g,"$1-");
         // 仅替换资源URL，原版模板和CSS内容保持不变；资源变化时URL自动更新。
         html = html.replace(
           /(["'(])\/(common|character|meta-sr\/public)\//g,
@@ -255,6 +263,10 @@ try {
         pieces: card.artifacts.length,
       });
     }
+  await writeFile(
+    join(output, "attributes.json"),
+    JSON.stringify({scope:"static",calculator:"miao/Attr",characters:attributes}),
+  );
   await writeFile(
     join(output, "renderer-manifest.json"),
     JSON.stringify(manifest, null, 2),
