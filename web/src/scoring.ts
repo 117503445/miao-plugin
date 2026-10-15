@@ -1,6 +1,7 @@
 import ArtisMark from "../../models/artis/ArtisMark.js";
 import ArtisMarkCfg from "../../models/artis/ArtisMarkCfg.js";
 import ArtisAttr from "../../models/artis/ArtisAttr.js";
+import Artis from "../../models/artis/Artis.js";
 import * as gsMeta from "../../resources/meta-gs/artifact/extra.js";
 import * as srMeta from "../../resources/meta-sr/artifact/meta.js";
 import { usefulAttr as gsWeights } from "../../resources/meta-gs/artifact/artis-mark.js";
@@ -161,7 +162,7 @@ export function scoreCard(card: Card, native = false): ScoredCard {
         ...detail,
         markClass: result.grade,
         charWeight: result.weights,
-        allAttr: [],
+        allAttr: summaryAttributes(pieces,card.game),
         artis: Object.fromEntries(
           pieces.map((piece) => [
             piece.idx,
@@ -199,4 +200,18 @@ export function scoreCard(card: Card, native = false): ScoredCard {
       },
     };
   return result;
+}
+
+/** 用pieces副词条调用原版汇总；game决定最大档位与格式，沿用原版最多九格布局。 */
+function summaryAttributes(pieces:Artifact[],game:"gs"|"sr"):any[] {
+  const attrMap=(game==="gs" ? gsMeta : srMeta).attrMap;
+  const all=Artis.prototype.getAllAttr.call({game,
+    /** 将解码后的词条补齐原版有效档数，fn接收当前装备。 */
+    forEach(fn:(piece:any)=>void):void {
+      pieces.forEach(piece=>fn({...piece,attrs:piece.attrs.map(stat=>({...stat,upNum:stat.rollCount || 0,eff:stat.value/attrMap[stat.key].value}))}));
+    }
+  });
+  const summary=Array.isArray(all) ? all.slice(0,9) : [];
+  while (summary.length<9) summary.push({});
+  return summary;
 }
