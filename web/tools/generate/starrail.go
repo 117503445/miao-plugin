@@ -88,7 +88,7 @@ func (g *generator) starrail(path string) account {
 			if idx == 0 || key == "" {
 				panic("未知星铁部位或主词条: " + r.Slot + " / " + r.Mainstat)
 			}
-			ar := artifact{Idx: idx, Name: set.Idxs[strconv.Itoa(idx)].Name, Set: set.Name, Level: r.Level, Star: r.Rarity, Main: stat{Key: key}, Attrs: []stat{}, Image: g.media(filepath.Join(g.root, "resources/meta-sr/artifact", set.Name, fmt.Sprint(idx)+".webp"))}
+			ar := artifact{Idx: idx, Name: set.Idxs[strconv.Itoa(idx)].Name, Set: set.Name, Level: r.Level, Star: r.Rarity, Main: stat{Key: key}, Attrs: []stat{}, Image: g.media(filepath.Join(g.root, "resources/meta-sr/artifact", set.Name, "arti-"+fmt.Sprint(idx)+".webp"))}
 			for _, s := range r.Substats {
 				key := srKeys[s.Key]
 				if key == "" {

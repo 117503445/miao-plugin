@@ -1,2 +1,9 @@
 node_modules/
 dist/
+# 原版模板和资源由构建从上游源码生成。
+public/common/
+public/character/
+public/native-media/
+public/profiles/
+public/scores/
+public/renderer-manifest.json

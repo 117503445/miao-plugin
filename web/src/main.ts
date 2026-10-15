@@ -1,6 +1,11 @@
 import "./style.css";
 import "./panel.css";
-import { panelHTML, escapeHTML as esc, elements } from "./panel";
+import {
+  panelHTML,
+  escapeHTML as esc,
+  elements,
+  fitNativeFrames,
+} from "./panel";
 import { scoreCard } from "./scoring";
 import type { Snapshot } from "./types";
 
@@ -11,7 +16,7 @@ try {
   if (!response.ok) throw new Error("账号数据加载失败");
   const snapshot: Snapshot = await response.json();
   const cards = snapshot.accounts.flatMap((account) =>
-    account.characters.map(scoreCard),
+    account.characters.map((card) => scoreCard(card)),
   );
   let game: "gs" | "sr" = "gs";
   let query = "";
@@ -56,6 +61,7 @@ try {
     document.querySelector("#cards")!.innerHTML = filtered.length
       ? filtered.map((c) => panelHTML(c)).join("")
       : '<p class="empty">没有符合筛选条件的角色。</p>';
+    fitNativeFrames(document.querySelector("#cards")!);
     document
       .querySelectorAll<HTMLButtonElement>("[data-game]")
       .forEach((b) => b.classList.toggle("active", b.dataset.game === game));
@@ -66,6 +72,7 @@ try {
     const card = cards.find((c) => c.key === key)!;
     document.querySelector("#detail-body")!.innerHTML = panelHTML(card, true);
     dialog.showModal();
+    fitNativeFrames(dialog);
   }
   document.querySelector("#search")!.addEventListener("input", (e) => {
     query = (e.target as HTMLInputElement).value;
