@@ -2,7 +2,7 @@
 
 用户要求fork喵喵插件，在 https://mihoyo.cloud.117503445.top 展示本人两个游戏的角色、当前装备与配装评分。用户进一步明确：使用喵喵原版代码渲染，不另写一套仿版卡片样式。
 
-本目录执行`npm ci && npm run build`：构建阶段通过art-template直接执行仓库内未修改的`resources/character/profile-detail.html`、`artis-mark.html`及`common/layout/elem.html`，复制原版CSS与资源，生成168张角色面板和168张评分详图。线上只有静态文件，无账号认证、机器人或数据库服务。
+本目录执行`npm ci && npm run build`：构建阶段通过art-template直接执行仓库内未修改的`resources/character/profile-detail.html`、`artis-mark.html`及`common/layout/elem.html`，复制原版CSS与资源，生成168张角色面板和168张评分详图。角色内容始终为静态文件；线上入口由独立Go网关接入通用cloud-auth，仅qht可访问，静态站不持有登录密钥。
 
 网页壳层只负责游戏切换、搜索、筛选、排序和原版页面的等比缩放；面板通过iframe隔离样式。`/renderer-manifest.json`记录原模板／CSS的SHA256和各角色评分，便于检查实际使用的源文件。生成目录不入库，CI从上游源码重新构建。
 
@@ -24,4 +24,10 @@
 
 图片和天赋图标使用内容摘要文件名，前端JS／CSS／字体由Vite生成摘要文件名；原版公共字体、背景、样式及星铁图标复制到`/miao/<资源内容摘要>/`，只替换生成HTML的引用地址，不改动原CSS。相同资源跨配装数据更新保持相同URL，资源变更则更新URL。`renderer-manifest.json`包含resourcePrefix便于核验。
 
-部署为上述有版本资源设置`Cache-Control: public, max-age=31536000, immutable`。HTML、账号JSON和渲染清单保留`no-cache`，允许浏览器保存并重新验证，避免长期显示旧配装。规则依据HTTP缓存语义：https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control 。
+部署为上述有版本资源设置`Cache-Control: private, max-age=31536000, immutable`。HTML、账号JSON和渲染清单保留`private, no-cache`，允许浏览器保存并重新验证，避免长期显示旧配装。规则依据HTTP缓存语义：https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control 。
+
+## 列表模式
+
+默认展示简洁列表，浏览器记住列表／原版卡片选择。列表按角色显示等级、命座／星魂、武器、导出基础技能等级和总分，展开核对每件主副词条、分数、评级与权重；不预加载角色大图或iframe。原版面板与评分详图按需打开，搜索、属性筛选和排序在两种模式间保持。
+
+`npx tsx tools/audit.ts`直接执行原版算法，核对桑多涅羽毛的来源词条和评分、检查所有角色评分是否有效。该羽毛为30.0/S：攻击14%、暴击3.9%、暴伤6.2%、固定防御67，固定防御不计分；花羽固定主词条不计分。没有修改上游权重或评分公式。

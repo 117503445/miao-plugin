@@ -1,0 +1,47 @@
+/* 列表模式减少装饰和图片，展开后直接核对原始词条。 */
+.view-switch { display:flex; gap:6px; margin-left:auto; }
+.view-switch button { border:1px solid var(--line); padding:9px 15px; border-radius:5px; background:transparent; color:var(--muted); }
+.view-switch button.active { background:var(--gold); border-color:var(--gold); color:#172433; }
+body.list-mode { background:#171c25; }
+.list-mode .intro .eyebrow,.list-mode .intro p { display:none; }
+.list-mode .intro h1 { font-family:inherit; font-size:27px; }
+.list-mode .intro { padding:5px 0 18px; }
+.list-mode .intro h1 span { color:inherit; margin-left:0; }
+.list-mode .brand { font-family:inherit; }
+#cards.character-list { display:block; max-width:none; }
+.list-heading,.list-character summary { display:grid; grid-template-columns:minmax(120px,1.1fr) minmax(95px,.75fr) minmax(160px,1.5fr) minmax(100px,.9fr) minmax(120px,.8fr); gap:16px; align-items:center; padding:15px 18px; }
+.list-heading { color:var(--muted); font-size:12px; border-bottom:1px solid var(--line); }
+.list-character { border-bottom:1px solid var(--line); }
+.list-character summary { cursor:pointer; font-size:14px; list-style:none; }
+.list-character summary::-webkit-details-marker { display:none; }
+.list-character summary:hover,.list-character[open] summary { background:#ffffff06; }
+.list-character summary:focus-visible { outline:2px solid var(--gold); outline-offset:-2px; }
+.list-character small { display:block; color:var(--muted); font-size:11px; margin-top:5px; }
+.list-name { font-weight:600; }
+.list-score b { color:var(--gold); font-size:12px; margin-left:5px; }
+.list-expanded { padding:4px 18px 20px; }
+.list-talent-note,.list-rule { font-size:12px; line-height:1.8; color:var(--muted); }
+.list-equipment { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
+.list-piece { padding:13px; background:#ffffff04; border:1px solid var(--line); border-radius:4px; }
+.list-piece-heading { display:flex; justify-content:space-between; gap:10px; font-size:12px; line-height:1.7; }
+.list-piece-heading b { white-space:nowrap; color:var(--gold); }
+.list-piece p { font-size:11px; color:var(--muted); line-height:1.7; }
+.list-piece ul { padding:0; margin:0; list-style:none; font-size:12px; line-height:1.9; }
+.list-piece .ineffective { color:var(--muted); }
+.list-actions { display:flex; gap:12px; }
+.list-actions button { border:1px solid var(--line); background:transparent; border-radius:4px; padding:8px 12px; color:inherit; font-size:12px; }
+@media(max-width:900px) {
+ .toolbar { flex-wrap:wrap; }
+ .view-switch { margin-left:0; }
+ .list-heading,.list-character summary { grid-template-columns:minmax(90px,1fr) minmax(70px,.7fr) minmax(110px,1.3fr) minmax(90px,.8fr); gap:10px; }
+ .list-heading span:nth-child(4),.list-character .list-talents { display:none; }
+}
+@media(max-width:540px) {
+ .list-heading { display:none; }
+ .list-character summary { grid-template-columns:minmax(0,1fr) minmax(0,1fr); padding:14px 5px; gap:12px; }
+ .list-name { font-size:15px; }
+ .list-character summary>span:nth-child(2),.list-score { text-align:right; }
+ .list-expanded { padding:0 5px 18px; }
+ .list-equipment { grid-template-columns:1fr; }
+ .list-character summary small { font-size:11px; }
+}

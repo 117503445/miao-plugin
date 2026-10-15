@@ -1,5 +1,7 @@
 import "./style.css";
 import "./panel.css";
+import "./list.css";
+import { listHTML } from "./list";
 import {
   panelHTML,
   escapeHTML as esc,
@@ -23,9 +25,11 @@ try {
   let element = "";
   let sort = "level";
   let onlyIncomplete = false;
-  app.innerHTML = `<header><a class="brand" href="/">✦ 米游档案 <span>PERSONAL ARCHIVE</span></a><a class="source" href="https://github.com/117503445/miao-plugin/tree/feat/static-account-cards" target="_blank" rel="noreferrer">开源 ↗</a></header><main><section class="intro"><div class="eyebrow">MIAO · CHARACTER PROFILES</div><h1>我的<span>角色面板</span></h1><p>每一位同行者，都值得一张完整的配装档案。</p></section><nav class="tabs" aria-label="选择游戏"><button data-game="gs" class="active">原神 <small>GENSHIN IMPACT</small></button><button data-game="sr">崩坏：星穹铁道 <small>HONKAI: STAR RAIL</small></button></nav><section id="account" class="account"></section><section class="toolbar" aria-label="筛选角色"><label class="search">搜 <input id="search" type="search" placeholder="搜索角色、武器或套装" aria-label="搜索角色、武器或套装"></label><select id="sort" aria-label="角色排序"><option value="level">等级优先</option><option value="score">评分从高到低</option><option value="weak">评分从低到高</option><option value="name">按角色名称</option></select><label class="toggle"><input id="incomplete" type="checkbox">仅看配装缺失</label></section><div id="elements" class="elements"></div><div id="count" class="count" aria-live="polite"></div><section id="cards" class="grid"></section><footer>采用<a href="https://github.com/yoimiya-kokomi/miao-plugin" target="_blank" rel="noreferrer">喵喵插件</a>原版角色权重与评分算法 · MIT<br>评分衡量有效词条，培养时还需结合队伍、充能和循环。这里展示导出时的配装快照。</footer></main><dialog id="detail"><button class="close" aria-label="关闭详情">×</button><div id="detail-body"></div></dialog>`;
+  let view: "list" | "cards" = localStorage.getItem("mihoyo-view") === "cards" ? "cards" : "list";
+  app.innerHTML = `<header><a class="brand" href="/">✦ 米游档案 <span>PERSONAL ARCHIVE</span></a><a class="source" href="https://github.com/117503445/miao-plugin/tree/feat/static-account-cards" target="_blank" rel="noreferrer">开源 ↗</a></header><main><section class="intro"><div class="eyebrow">MIAO · CHARACTER PROFILES</div><h1>我的<span>角色面板</span></h1><p>每一位同行者，都值得一张完整的配装档案。</p></section><nav class="tabs" aria-label="选择游戏"><button data-game="gs" class="active">原神 <small>GENSHIN IMPACT</small></button><button data-game="sr">崩坏：星穹铁道 <small>HONKAI: STAR RAIL</small></button></nav><section id="account" class="account"></section><section class="toolbar" aria-label="筛选角色"><label class="search">搜 <input id="search" type="search" placeholder="搜索角色、武器或套装" aria-label="搜索角色、武器或套装"></label><select id="sort" aria-label="角色排序"><option value="level">等级优先</option><option value="score">评分从高到低</option><option value="weak">评分从低到高</option><option value="name">按角色名称</option></select><label class="toggle"><input id="incomplete" type="checkbox">仅看配装缺失</label><nav class="view-switch" aria-label="展示模式"><button data-view="list">列表</button><button data-view="cards">原版卡片</button></nav></section><div id="elements" class="elements"></div><div id="count" class="count" aria-live="polite"></div><section id="cards" class="grid"></section><footer>采用<a href="https://github.com/yoimiya-kokomi/miao-plugin" target="_blank" rel="noreferrer">喵喵插件</a>原版角色权重与评分算法 · MIT<br>评分衡量有效词条，培养时还需结合队伍、充能和循环。这里展示导出时的配装快照。</footer></main><dialog id="detail"><button class="close" aria-label="关闭详情">×</button><div id="detail-body"></div></dialog>`;
   /** 根据当前游戏与筛选条件更新角色列表。 */
   function render(): void {
+    document.body.classList.toggle("list-mode", view === "list");
     const account = snapshot.accounts.find((a) => a.game === game)!;
     const gameCards = cards.filter((c) => c.game === game);
     const filtered = gameCards
@@ -58,19 +62,24 @@ try {
       .join("");
     document.querySelector("#count")!.textContent =
       `${filtered.length} 位同行者 · ${game === "gs" ? "圣遗物" : "遗器"}喵喵评分`;
+    document.querySelector("#cards")!.className = view === "list" ? "character-list" : "grid";
     document.querySelector("#cards")!.innerHTML = filtered.length
-      ? filtered.map((c) => panelHTML(c)).join("")
+      ? view === "list" ? listHTML(filtered) : filtered.map((c) => panelHTML(c)).join("")
       : '<p class="empty">没有符合筛选条件的角色。</p>';
     fitNativeFrames(document.querySelector("#cards")!);
     document
       .querySelectorAll<HTMLButtonElement>("[data-game]")
       .forEach((b) => b.classList.toggle("active", b.dataset.game === game));
+    document.querySelectorAll<HTMLButtonElement>("[data-view]").forEach(button => {
+      button.classList.toggle("active", button.dataset.view === view);
+      button.setAttribute("aria-pressed", String(button.dataset.view === view));
+    });
   }
   const dialog = document.querySelector<HTMLDialogElement>("#detail")!;
-  /** 展示key对应角色的完整喵喵面板与评分权重。 */
-  function showDetails(key: string): void {
+  /** 展示key对应角色的原版面板，expanded为true时展示评分详图。 */
+  function showDetails(key: string, expanded = true): void {
     const card = cards.find((c) => c.key === key)!;
-    document.querySelector("#detail-body")!.innerHTML = panelHTML(card, true);
+    document.querySelector("#detail-body")!.innerHTML = panelHTML(card, expanded);
     dialog.showModal();
     fitNativeFrames(dialog);
   }
@@ -91,7 +100,11 @@ try {
       "button",
     );
     if (!button) return;
-    if (button.dataset.game) {
+    if (button.dataset.view) {
+      view = button.dataset.view as "list" | "cards";
+      localStorage.setItem("mihoyo-view", view);
+      render();
+    } else if (button.dataset.game) {
       game = button.dataset.game as "gs" | "sr";
       element = "";
       render();
@@ -99,6 +112,7 @@ try {
       element = button.dataset.element;
       render();
     } else if (button.dataset.detail) showDetails(button.dataset.detail);
+    else if (button.dataset.profile) showDetails(button.dataset.profile, false);
     else if (button.classList.contains("close")) dialog.close();
   });
   dialog.addEventListener("click", (e) => {
